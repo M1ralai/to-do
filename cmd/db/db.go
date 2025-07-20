@@ -52,8 +52,7 @@ func CreateTodo(title string, desc string, deadline time.Time) {
 	}
 }
 
-func GetTodo(id int) (*Todo, error) {
-	var data [5]string
+func GetTodo() ([]*Todo, error) {
 	db, err := sql.Open("sqlite3", "./db/mydb.db")
 	if err != nil {
 		log.Fatal(err)
@@ -63,11 +62,37 @@ func GetTodo(id int) (*Todo, error) {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	r := db.QueryRow(getTodo, id)
-	err = r.Scan(&data[0], &data[1], &data[2], &data[3], &data[4])
+	r, err := db.Query(getTodo)
 	if err != nil {
 		log.Println(err)
 	}
-	t := newTodo(data[0], data[1], data[2], data[3], data[4])
-	return t, err
+	defer r.Close()
+	var todos []*Todo
+	for r.Next() {
+		var todo Todo
+		err := r.Scan(&todo.Id, &todo.Title, &todo.Desc, &todo.CreationTime, &todo.Deadline)
+		if err != nil {
+			log.Fatal(err)
+		}
+		todos = append(todos, &todo)
+	}
+	return todos, nil
+}
+
+func DeleteTodo(id int) {
+	db, err := sql.Open("sqlite3", "./db/mydb.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec(deleteTodo, id)
+	if err != nil {
+		log.Println("paniced")
+		log.Println(err)
+	}
 }

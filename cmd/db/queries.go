@@ -1,21 +1,11 @@
 package db
 
 type Todo struct {
-	Id           string `json:"ID"`
-	Title        string `json:"title"`
-	Desc         string `json:"description"`
-	CreationTime string `json:"creation_time"`
-	Deadline     string `json:"deadline"`
-}
-
-func newTodo(id string, title string, desc string, creationtime string, deadline string) *Todo {
-	return &Todo{
-		Id:           id,
-		Title:        title,
-		Desc:         desc,
-		CreationTime: creationtime,
-		Deadline:     deadline,
-	}
+	Id           string `json:"id" db:"id"`
+	Title        string `json:"title" db:"title"`
+	Desc         string `json:"description" db:"desc"`
+	CreationTime string `json:"creation_time" db:"creation_date"`
+	Deadline     string `json:"deadline" db:"deadline"`
 }
 
 var clearDb = `DROP TABLE IF EXISTS todo`
@@ -29,4 +19,6 @@ var createDb = `CREATE TABLE IF NOT EXISTS todo (
 
 var insertTodo = `INSERT INTO todo (title, desc, deadline) VALUES (?, ?, ?);`
 
-var getTodo = `SELECT * FROM todo WHERE id = ?;`
+var getTodo = `SELECT * FROM todo ;`
+
+var deleteTodo = `DELETE FROM todo WHERE id = ?;`

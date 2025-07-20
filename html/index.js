@@ -1,31 +1,40 @@
-async function hello() {
-    const veriAlani = document.getElementById('veriAlani'); // Hedef alanı unutma
+function get() {
+  fetch("http://localhost:3000/index")
+    .then((res) => res.json())
+    .then((data) => {
+      const container = document.getElementById("veriAlani");
+      container.innerHTML = "";
+        for (let i = 0; i < data.length; i++) {
+          const div = document.createElement("div");
+          div.innerHTML = `<h3>${data[i].id}: ${data[i].title}</h3>
+                             <p>${data[i].description}</p>
+                             <p>${data[i].creation_time}</p>
+                             <p>${data[i].deadline}</p><hr>
+                             <button onclick = "deleteAPI(${data[i].id})"> sil</button>`;
 
-    let id = 1;
-
-    while (true) {
-        try {
-            const response = await fetch(`http://localhost:3000/index?id=${id}`);
-
-            if (response.status === 404) {
-                console.log(`ID ${id} bulunamadı. Döngü sonlandırılıyor.`);
-                break; // 404 gelince dur
-            }
-
-            const data = await response.json();
-
-            const div = document.createElement('div');
-            div.innerHTML = `<h3>${data.ID}: ${data.title}</h3>
-                             <p>${data.description}</p>
-                             <p>${data.creation_time}</p>
-                             <p>${data.deadline}</p><hr>`;
-            veriAlani.appendChild(div);
-
-            id++; // sıradaki ID'ye geç
-        } catch (error) {
-            console.error("Hata:", error);
-            break; // Bağlantı hatası gibi durumlarda da döngüyü kes
+          container.appendChild(div);
         }
-    }
+    })
+    .catch((err) => console.error("Hata:", err));
 }
 
+function post() {
+  fetch(
+    "http://localhost:3000/index?title=Hello&desc=World&year=2025&month=12&day=31&hour=12&minute=30",
+    {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    }
+  );
+}
+
+function deleteAPI(id) {
+  fetch("http://localhost:3000/index?id=" + id, {
+    method: "DELETE",
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
+  });
+}

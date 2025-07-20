@@ -41,13 +41,7 @@ func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		query := r.URL.Query()
-		id := query.Get("id")
-		cid, err := strconv.ParseInt(id, 10, 64)
-		if err != nil {
-			log.Println(err)
-		}
-		data, err := db.GetTodo(int(cid))
+		data, err := db.GetTodo()
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -73,8 +67,13 @@ func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {
 		db.CreateTodo(title, desc, t)
 
 	case "DELETE":
-		log.Println(r.Method)
-		log.Println(r.URL)
+		query := r.URL.Query()
+		id := query.Get("id")
+		cid, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			log.Println(err)
+		}
+		db.DeleteTodo(int(cid))
 	case "PUT":
 		log.Println(r.Method)
 		log.Println(r.URL)
