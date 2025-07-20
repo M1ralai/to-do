@@ -52,7 +52,7 @@ func CreateTodo(title string, desc string, deadline time.Time) {
 	}
 }
 
-func GetTodo(id int) [5]string {
+func GetTodo(id int) *Todo {
 	var data [5]string
 	db, err := sql.Open("sqlite3", "./db/mydb.db")
 	if err != nil {
@@ -68,5 +68,6 @@ func GetTodo(id int) [5]string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return data
+	t := newTodo(data[0], data[1], data[2], data[3], data[4])
+	return t
 }

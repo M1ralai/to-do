@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -45,7 +46,9 @@ func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 		data := db.GetTodo(int(cid))
-		log.Println(data)
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(data)
 
 	case "POST":
 		query := r.URL.Query()
