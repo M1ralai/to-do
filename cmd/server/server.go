@@ -31,6 +31,8 @@ func (s *Server) Start() {
 
 func (s *Server) Run() {
 	log.Println("server listening and serving at ", s.serverAddr)
+	fs := http.FileServer(http.Dir("./html"))
+	s.mux.Handle("/", http.StripPrefix("/", fs))
 	s.mux.HandleFunc("/index", s.getIndex)
 	http.ListenAndServe(s.serverAddr, s.mux)
 }
@@ -45,8 +47,10 @@ func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
-		data := db.GetTodo(int(cid))
-
+		data, err := db.GetTodo(int(cid))
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(data)
 
