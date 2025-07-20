@@ -1,8 +1,13 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/M1ralai/todo/cmd/db"
 )
 
 type Server struct {
@@ -20,9 +25,11 @@ func NewServer(addr string) *Server {
 func (s *Server) Start() {
 	mux := http.NewServeMux()
 	s.mux = mux
+	log.Println("server succesfully started")
 }
 
 func (s *Server) Run() {
+	log.Println("server listening and serving at ", s.serverAddr)
 	s.mux.HandleFunc("/index", s.getIndex)
 	http.ListenAndServe(s.serverAddr, s.mux)
 }
@@ -31,11 +38,33 @@ func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		log.Println(r.Method)
-		log.Println(r.URL)
+		query := r.URL.Query()
+		id := query.Get("id")
+		cid, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			log.Println(err)
+		}
+		data := db.GetTodo(int(cid))
+		log.Println(data)
+
 	case "POST":
-		log.Println(r.Method)
-		log.Println(r.URL)
+		query := r.URL.Query()
+		title := query.Get("title")
+		desc := query.Get("desc")
+		year := query.Get("year")
+		month := query.Get("month")
+		day := query.Get("day")
+		hour := query.Get("hour")
+		minute := query.Get("minute")
+		date := year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + "00"
+		layout := "2006-01-02 15:04:05" // Go'nun sabit layout formatı
+		t, err := time.Parse(layout, date)
+		if err != nil {
+			fmt.Println("Hata:", err)
+			return
+		}
+		db.CreateTodo(title, desc, t)
+
 	case "DELETE":
 		log.Println(r.Method)
 		log.Println(r.URL)
